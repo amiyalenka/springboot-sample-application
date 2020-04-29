@@ -1,20 +1,23 @@
-# Start with a base image containing Java runtime
-FROM openjdk:8-jdk-alpine
+# Use the official maven/Java 8 image to create a build artifact.
+# https://hub.docker.com/_/maven
+FROM maven:3.5-jdk-8-alpine as builder
 
-# Add Maintainer Info
-LABEL maintainer="Amiya"
+# Copy local code to the container image.
+WORKDIR /app
+COPY pom.xml .
+COPY src ./src
 
-# Add a volume pointing to /tmp
-VOLUME /tmp
+# Build a release artifact.
+RUN mvn package -DskipTests
 
-# Make port 8080 available to the world outside this container
-EXPOSE 8080
+# Use AdoptOpenJDK for base image.
+# It's important to use OpenJDK 8u191 or above that has container support enabled.
+# https://hub.docker.com/r/adoptopenjdk/openjdk8
+# https://docs.docker.com/develop/develop-images/multistage-build/#use-multi-stage-builds
+FROM adoptopenjdk/openjdk8:jdk8u202-b08-alpine-slim
 
-# The application's jar file
-#ARG JAR_FILE=target/springboot-sample-application-0.0.1-SNAPSHOT.jar
+# Copy the jar to the production image from the builder stage.
+COPY --from=builder /app/target/springboot-sample-application-0.0.1-SNAPSHOT.jar /springboot-sample-application-0.0.1-SNAPSHOT.jar
 
-# Add the application's jar to the container
-#ADD ${JAR_FILE} springboot-sample-application-0.0.1-SNAPSHOT.jar
-
-# Run the jar file
-ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","target/springboot-sample-application-0.0.1-SNAPSHOT.jar"]
+# Run the web service on container startup.
+CMD ["java","-Djava.security.egd=file:/dev/./urandom","-Dserver.port=${PORT}","-jar","/springboot-sample-application-0.0.1-SNAPSHOT.jar"]
