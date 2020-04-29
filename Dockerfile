@@ -1,27 +1,20 @@
-#FROM openjdk:8-jdk-alpine
-#ARG JAR_FILE=target/springboot-sample-application-0.0.1-SNAPSHOT.jar
-#COPY ${JAR_FILE} springboot-sample-application-0.0.1-SNAPSHOT.jar
-#ENTRYPOINT ["java","-jar","/springboot-sample-application-0.0.1-SNAPSHOT.jar"]
-
-# For Java 8, try this
+# Start with a base image containing Java runtime
 FROM openjdk:8-jdk-alpine
 
-#EXPOSE 8085
-# For Java 11, try this
-#FROM adoptopenjdk/openjdk11:alpine-jre
+# Add Maintainer Info
+LABEL maintainer="Amiya"
 
-# Refer to Maven build -> finalName
-#ARG JAR_FILE=target/springboot-sample-application-0.0.1-SNAPSHOT.jar
+# Add a volume pointing to /tmp
+VOLUME /tmp
 
-# cd /opt/app
-#WORKDIR /opt/app
-WORKDIR /app
+# Make port 8080 available to the world outside this container
+EXPOSE 8080
 
-ADD . /app
+# The application's jar file
+ARG JAR_FILE=target/springboot-sample-application-0.0.1-SNAPSHOT.jar
 
-#ENV PORT=8085
-# cp target/spring-boot-web.jar /opt/app/app.jar
-#COPY ${JAR_FILE} app.jar
+# Add the application's jar to the container
+ADD ${JAR_FILE} springboot-sample-application-0.0.1-SNAPSHOT.jar
 
-# java -jar /opt/app/app.jar
-ENTRYPOINT ["java","-jar","app/app.jar"]
+# Run the jar file
+ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/springboot-sample-application-0.0.1-SNAPSHOT.jar"]
