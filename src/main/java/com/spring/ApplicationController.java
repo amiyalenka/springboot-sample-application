@@ -15,7 +15,7 @@ public class ApplicationController {
 
     @GetMapping(value = "/test")
     public String getAllAirlineProcessJobsByJobType() {
-        return "second cloud run app";
+        return "my first cloud run app";
     }
 
 }
