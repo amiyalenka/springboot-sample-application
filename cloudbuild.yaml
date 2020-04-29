@@ -3,3 +3,5 @@ steps:
     args: ['build', '-t', 'gcr.io/my-demo-project-271911/springboot-sample-application:$SHORT_SHA', '.']
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/my-demo-project-271911/springboot-sample-application:$SHORT_SHA']
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: ['beta', 'run', 'deploy', 'my-demo-project-271911', '--region=us-central1', '--platform=managed', '--image=gcr.io/my-demo-project-271911/springboot-sample-application:$SHORT_SHA' ]
